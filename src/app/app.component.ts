@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {map} from 'rxjs/operators'
 import { Post } from './post.model';
 import { FormControl, FormGroup } from '@angular/forms';
+import { PostService } from './post.service';
 
 @Component({
   selector: 'app-root',
@@ -10,29 +11,21 @@ import { FormControl, FormGroup } from '@angular/forms';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  endPointURL:string = 'https://angular-training-bli-default-rtdb.asia-southeast1.firebasedatabase.app/'
-  postURL: string = this.endPointURL+'post.json'
+  
   loadedPosts = [];
   id: string =''
   title: string =''
   content:string =''
   showLoading = false
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private postService : PostService) {}
 
   ngOnInit() {
-    this.fetchPosts();
+    this.onFetchPosts()
   }
 
-  onCreatePost(postData: { title: string; content: string }) {
-    // Send Http request
-    console.log(postData);
-
-    this.http.post(this.postURL, postData).subscribe(
-      (data) => {
-        console.log(data);
-      }
-    )
+  onCreatePost(postData: Post) {
+    this.postService.createAndPost(postData)
   }
 
   onUpdatePost() {
@@ -42,64 +35,37 @@ export class AppComponent implements OnInit {
         content : this.content
       }
     }
-
-    console.log(updatedData);
-
-    this.http.patch(this.postURL, updatedData).subscribe(
-      (data) => {
-        console.log(data);
-      }
-    )
+    this.postService.updatePost(updatedData)
   }
 
 
   onFetchPosts() {
-    // Send Http request
-    this.fetchPosts();
+    this.showLoading = true
+    this.postService.fetchPosts()
+      .subscribe(
+        (data) => {
+          this.showLoading = false
+          this.loadedPosts = data
+        }
+      )
   }
 
   onClearPosts() {
-    // Send Http request
+    this.showLoading = true
+    this.postService.deletePosts()
+    .subscribe(
+      (data) => {
+        this.showLoading = false
+        this.loadedPosts = []
+      }
+    )
   }
 
   getDataById(id) {
     this.fetchPostById(id)
   }
 
-  private fetchPosts() {
-    // [key:string] utk inisialisasi key index : tipeData key (index signature typescript)
-    this.showLoading = true
-    this.http.get<{[key:string] : Post}>(this.postURL)
-    .pipe(
-      map(
-        (data) => {
-          const postArray = []
-          for(const key in data) {
-            if(data.hasOwnProperty(key)) {
-              postArray.push(
-                {
-                  // ... itu artinya semua data dijadikan sebuah object
-                  ...data[key], 
-                  id:key,
-                  // owner: 'William'
-                }
-              )
-            }
-          }
-          return  postArray
-        }
-      )
-    )
-    .subscribe(
-      (data) => {
-        this.showLoading = false
-        this.loadedPosts = data
-        console.log(data);
-      }
-    )
-  }
-
-  private fetchPostById(post) {
+  fetchPostById(post) {
     this.id = post.id
     this.content = post.content
     this.title = post.title
