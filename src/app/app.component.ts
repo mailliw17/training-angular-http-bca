@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
   title: string =''
   content:string =''
   showLoading = false
+  error = null
 
   constructor(private http: HttpClient, private postService : PostService) {}
 
@@ -46,6 +47,10 @@ export class AppComponent implements OnInit {
         (data) => {
           this.showLoading = false
           this.loadedPosts = data
+        },
+        (err) => {
+          console.log(err);
+          this.error = err
         }
       )
   }

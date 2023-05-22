@@ -41,6 +41,12 @@
   <!-- EOF UPDATE FORM -->
 
   <hr />
+
+  <div class="alert alert-danger" role="alert" *ngIf="error">
+    <h3>Error occur!</h3>
+    <p>{{error.message}}</p>
+  </div>
+
   <div class="row">
     <div class="col-xs-12 col-md-6 col-md-offset-3">
       <button class="btn btn-primary" (click)="onFetchPosts()">
@@ -54,9 +60,9 @@
   </div>
   <div class="row">
 
-    <div class="spinner-border" style="width: 6 rem; height: 6 rem;" role="status" *ngIf="showLoading">
+    <div class="spinner-border" style="width: 6 rem; height: 6 rem;" role="status" *ngIf="showLoading && !error">
     </div>
-    <span class="sr-only" *ngIf="showLoading">Loading....</span>
+    <span class="sr-only" *ngIf="showLoading && !error">Loading....</span>
 
     <div class="col-xs-12 col-md-6 col-md-offset-3">
       <p *ngIf="loadedPosts.length < 1 && !showLoading">No posts available!</p>

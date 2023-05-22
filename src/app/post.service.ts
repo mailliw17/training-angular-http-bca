@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Post } from './post.model';
@@ -31,7 +31,12 @@ export class PostService {
 
   fetchPosts() {
     // [key:string] utk inisialisasi key index : tipeData key (index signature typescript)
-    return this.http.get<{[key:string] : Post}>(this.postURL)
+    return this.http.get<{[key:string] : Post}>(this.postURL,
+      {
+        headers: new HttpHeaders({
+          'custom-header' : 'Hello from aku'
+        })
+      })
     .pipe(
       map(
         (data) => {
